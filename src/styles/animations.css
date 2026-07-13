@@ -1,0 +1,81 @@
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -14px, 0);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.78;
+    transform: scale(1.045);
+  }
+}
+
+@keyframes gradientDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(18px, -18px, 0) scale(1.05);
+  }
+}
+
+@keyframes gridDrift {
+  0%,
+  100% {
+    background-position: 0 0, 0 0;
+  }
+
+  50% {
+    background-position: 28px 18px, 18px 28px;
+  }
+}
+
+@keyframes shineSweep {
+  0% {
+    transform: translateX(-130%) skewX(-16deg);
+  }
+
+  100% {
+    transform: translateX(130%) skewX(-16deg);
+  }
+}
+
+@keyframes premiumGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 28px 90px rgba(41, 214, 255, 0.16),
+      0 0 0 rgba(79, 240, 183, 0);
+  }
+
+  50% {
+    box-shadow:
+      0 30px 100px rgba(41, 214, 255, 0.2),
+      0 0 34px rgba(79, 240, 183, 0.13);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "ApexLoad",
+  "short_name": "ApexLoad",
+  "description": "Smart social-media video, image and audio downloader.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070915",
+  "theme_color": "#070915",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
