@@ -181,7 +181,7 @@ const translations = {
     },
     legal: {
       backHome: "Back to ApexLoad",
-      updated: "Last updated: July 10, 2026",
+      updated: "Last updated: July 15, 2026",
       privacy: {
         title: "Privacy Policy",
         intro: "This policy explains how the ApexLoad website and application may handle information when you use the service.",
@@ -190,7 +190,7 @@ const translations = {
           { title: "Technical information", body: "Basic device, app, diagnostic, and service-performance data may be processed to maintain security and reliability. ApexLoad does not need your social-media password for public-link analysis." },
           { title: "Media links and files", body: "Links are processed to detect available media. Downloaded files are saved according to the app workflow and your device permissions. Do not submit private or unauthorized content." },
           { title: "Third-party services", body: "Source platforms and payment providers operate under their own policies. ApexLoad is independent and does not control those services." },
-          { title: "Contact", body: "Privacy questions can be sent to privacy@apexload.org." },
+          { title: "Contact", body: "Privacy questions can be sent to support@apexload.org." },
         ],
       },
       terms: {
@@ -365,7 +365,7 @@ const translations = {
     },
     legal: {
       backHome: "العودة إلى ApexLoad",
-      updated: "آخر تحديث: 10 يوليو 2026",
+      updated: "آخر تحديث: 15 يوليو 2026",
       privacy: {
         title: "سياسة الخصوصية",
         intro: "توضح هذه السياسة كيفية تعامل موقع وتطبيق ApexLoad مع المعلومات عند استخدام الخدمة.",
@@ -374,7 +374,7 @@ const translations = {
           { title: "المعلومات التقنية", body: "قد تتم معالجة بيانات الجهاز والتطبيق والتشخيص وأداء الخدمة الأساسية للحفاظ على الأمان والموثوقية. لا يحتاج ApexLoad إلى كلمة مرور حسابك في منصات التواصل لتحليل الروابط العامة." },
           { title: "روابط الوسائط والملفات", body: "تتم معالجة الروابط لاكتشاف الوسائط المتاحة. تُحفظ الملفات وفق تدفق التطبيق وأذونات جهازك. لا ترسل محتوى خاصاً أو غير مصرح به." },
           { title: "الخدمات الخارجية", body: "تعمل منصات المصدر ومزودو الدفع وفق سياساتهم الخاصة. ApexLoad مستقل ولا يتحكم بهذه الخدمات." },
-          { title: "التواصل", body: "يمكن إرسال أسئلة الخصوصية إلى privacy@apexload.org." },
+          { title: "التواصل", body: "يمكن إرسال أسئلة الخصوصية إلى support@apexload.org." },
         ],
       },
       terms: {

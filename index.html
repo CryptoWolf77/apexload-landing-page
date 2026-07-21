@@ -6,6 +6,13 @@
     <title>ApexLoad — Social Media Video, Image and Audio Downloader</title>
     <meta name="description" content="Download supported social-media videos, images and audio with smart format detection, high-quality options and powerful Premium tools." />
     <meta name="theme-color" content="#070915" />
+    <script>
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("apexload-theme") === "light" ? "light" : "dark";
+      } catch (_) {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://apexload.org/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -15,6 +22,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://apexload.org/" />
     <meta property="og:site_name" content="ApexLoad" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content="ApexLoad — Social Media Video, Image and Audio Downloader" />
     <meta property="og:description" content="Download supported social-media videos, images and audio with smart format detection, high-quality options and powerful Premium tools." />
     <meta property="og:image" content="https://apexload.org/og-apexload.png" />

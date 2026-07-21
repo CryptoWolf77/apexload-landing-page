@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   useMotionValue,
@@ -7,7 +7,6 @@ import {
   useTransform,
 } from "framer-motion";
 import {
-  ArrowLeft,
   ArrowRight,
   BadgeCheck,
   Check,
@@ -19,7 +18,6 @@ import {
   FileImage,
   Film,
   FolderDown,
-  Globe2,
   Image,
   Layers3,
   Library,
@@ -32,9 +30,15 @@ import {
   Wand2,
   X,
 } from "lucide-react";
+import { Link, Route, Routes } from "react-router-dom";
 import { AnimatedSection } from "./components/AnimatedSection.jsx";
 import { MotionCard } from "./components/MotionCard.jsx";
+import { PageSEO } from "./components/PageSEO.jsx";
+import { RouteEffects } from "./components/RouteEffects.jsx";
+import { SiteFooter } from "./components/SiteFooter.jsx";
+import { BrandLink, LanguageSwitcher, ThemeToggle } from "./components/SiteControls.jsx";
 import { getPrimaryDownloadUrl, siteConfig } from "./config/siteConfig.js";
+import legalUiTranslations from "./i18n/legalUiTranslations.js";
 import translations from "./i18n/translations.js";
 import {
   cardItem,
@@ -48,6 +52,8 @@ import {
   scaleIn,
   staggerContainer,
 } from "./lib/motion.js";
+
+const LegalCenter = lazy(() => import("./pages/LegalCenter.jsx"));
 
 const assets = {
   home: "/assets/apexload-home.jpeg",
@@ -99,19 +105,21 @@ function getInitialLanguage() {
   }
 }
 
-function getCurrentPage() {
-  const path = window.location.pathname.replace(/\/$/, "") || "/";
-  if (path === "/privacy") return "privacy";
-  if (path === "/terms") return "terms";
-  return "home";
+function getInitialTheme() {
+  try {
+    return window.localStorage.getItem("apexload-theme") === "light" ? "light" : "dark";
+  } catch {
+    return "dark";
+  }
 }
 
 function App() {
   const [language, setLanguage] = useState(getInitialLanguage);
+  const [theme, setTheme] = useState(getInitialTheme);
   const prefersReducedMotion = useReducedMotion();
   const t = translations[language];
+  const legalT = legalUiTranslations[language];
   const isRtl = language === "ar";
-  const page = getCurrentPage();
 
   useLayoutEffect(() => {
     document.documentElement.lang = language;
@@ -125,23 +133,15 @@ function App() {
     }
   }, [language, isRtl]);
 
-  useEffect(() => {
-    const pageUrl = page === "home" ? `${siteConfig.siteUrl}/` : `${siteConfig.siteUrl}/${page}`;
-    const canonical = document.querySelector('link[rel="canonical"]');
-    const ogUrl = document.querySelector('meta[property="og:url"]');
-    const description = document.querySelector('meta[name="description"]');
-
-    if (canonical) canonical.setAttribute("href", pageUrl);
-    if (ogUrl) ogUrl.setAttribute("content", pageUrl);
-
-    if (page === "home") {
-      document.title = "ApexLoad — Social Media Video, Image and Audio Downloader";
-      return;
+  useLayoutEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#f4f8fc" : "#070915");
+    try {
+      window.localStorage.setItem("apexload-theme", theme);
+    } catch {
+      // Theme persistence is optional in strict privacy modes.
     }
-
-    document.title = `${t.legal[page].title} | ApexLoad`;
-    if (description) description.setAttribute("content", t.legal[page].intro);
-  }, [page, t]);
+  }, [theme]);
 
   return (
     <div
@@ -149,30 +149,63 @@ function App() {
       lang={language}
       dir={isRtl ? "rtl" : "ltr"}
       data-language={language}
+      data-theme={theme}
       data-reduced-motion={prefersReducedMotion ? "true" : "false"}
     >
-      {page === "home" ? (
-        <LandingPage t={t} language={language} setLanguage={setLanguage} />
-      ) : (
-        <LegalPage page={page} t={t} language={language} setLanguage={setLanguage} />
-      )}
+      <a className="skip-link" href="#main-content">{legalT.common.skip}</a>
+      <RouteEffects />
+      <Routes>
+        <Route
+          path="/"
+          element={(
+            <>
+              <PageSEO language={language} />
+              <LandingPage
+                t={t}
+                legalT={legalT}
+                language={language}
+                setLanguage={setLanguage}
+                theme={theme}
+                setTheme={setTheme}
+              />
+            </>
+          )}
+        />
+        <Route
+          path="*"
+          element={(
+            <Suspense fallback={<main id="main-content" className="route-loading" aria-live="polite">{legalT.common.loading}</main>}>
+              <LegalCenter
+                language={language}
+                setLanguage={setLanguage}
+                theme={theme}
+                setTheme={setTheme}
+                marketingT={t}
+              />
+            </Suspense>
+          )}
+        />
+      </Routes>
     </div>
   );
 }
 
-function LandingPage({ t, language, setLanguage }) {
+function LandingPage({ t, legalT, language, setLanguage, theme, setTheme }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
       <Navbar
         t={t}
+        legalT={legalT}
         language={language}
         setLanguage={setLanguage}
+        theme={theme}
+        setTheme={setTheme}
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
       />
-      <main>
+      <main id="main-content" tabIndex="-1" data-route-focus>
         <Hero t={t} />
         <PlatformStrip t={t} />
         <Features t={t} />
@@ -183,15 +216,16 @@ function LandingPage({ t, language, setLanguage }) {
         <FAQ t={t} />
         <FinalCTA t={t} />
       </main>
-      <Footer t={t} />
+      <SiteFooter t={t} legalT={legalT} />
     </>
   );
 }
 
-function Navbar({ t, language, setLanguage, menuOpen, setMenuOpen }) {
+function Navbar({ t, legalT, language, setLanguage, theme, setTheme, menuOpen, setMenuOpen }) {
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.matchMedia("(max-width: 820px)").matches);
   const menuButtonRef = useRef(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const updateScrolled = () => setScrolled(window.scrollY > 18);
@@ -233,15 +267,12 @@ function Navbar({ t, language, setLanguage, menuOpen, setMenuOpen }) {
   return (
     <motion.header
       className={`navbar-wrap ${scrolled ? "is-scrolled" : ""}`}
-      initial="hidden"
+      initial={prefersReducedMotion ? false : "hidden"}
       animate="visible"
       variants={navbarDrop}
     >
       <nav className="navbar section-frame" aria-label={t.nav.label}>
-        <a href="#top" className="brand-mark" aria-label={t.nav.homeAria} onClick={closeMenu}>
-          <span className="brand-symbol"><Download size={18} /></span>
-          <span>ApexLoad</span>
-        </a>
+        <BrandLink ariaLabel={t.nav.homeAria} onClick={closeMenu} to="/#top" />
 
         <div
           id="mobile-navigation"
@@ -255,6 +286,7 @@ function Navbar({ t, language, setLanguage, menuOpen, setMenuOpen }) {
           {navItems.map((item) => (
             <a key={item.key} href={item.href} tabIndex={closedMenuTabIndex} onClick={closeMenu}>{t.nav[item.key]}</a>
           ))}
+          <Link to="/support" tabIndex={closedMenuTabIndex} onClick={closeMenu}>{legalT.footer.support}</Link>
           <div className="mobile-language">
             <LanguageSwitcher
               t={t}
@@ -264,10 +296,19 @@ function Navbar({ t, language, setLanguage, menuOpen, setMenuOpen }) {
               tabIndex={closedMenuTabIndex}
             />
           </div>
+          <div className="mobile-theme">
+            <ThemeToggle
+              theme={theme}
+              setTheme={setTheme}
+              label={theme === "dark" ? legalT.common.themeToLight : legalT.common.themeToDark}
+              tabIndex={closedMenuTabIndex}
+            />
+          </div>
           <DownloadAction className="nav-download mobile-download" t={t} onClick={closeMenu} tabIndex={closedMenuTabIndex} />
         </div>
 
         <div className="nav-actions">
+          <ThemeToggle theme={theme} setTheme={setTheme} label={theme === "dark" ? legalT.common.themeToLight : legalT.common.themeToDark} />
           <LanguageSwitcher t={t} language={language} setLanguage={setLanguage} />
           <DownloadAction className="nav-download" t={t} />
         </div>
@@ -285,26 +326,6 @@ function Navbar({ t, language, setLanguage, menuOpen, setMenuOpen }) {
         </button>
       </nav>
     </motion.header>
-  );
-}
-
-function LanguageSwitcher({ t, language, setLanguage, onChange, tabIndex }) {
-  const changeLanguage = (nextLanguage) => {
-    setLanguage(nextLanguage);
-    onChange?.();
-  };
-
-  return (
-    <div className="language-switcher" role="group" aria-label={t.language.switchLabel}>
-      <Globe2 size={16} aria-hidden="true" />
-      <button type="button" tabIndex={tabIndex} className={language === "en" ? "is-active" : ""} aria-pressed={language === "en"} onClick={() => changeLanguage("en")}>
-        EN
-      </button>
-      <span aria-hidden="true">/</span>
-      <button type="button" tabIndex={tabIndex} className={language === "ar" ? "is-active" : ""} aria-pressed={language === "ar"} onClick={() => changeLanguage("ar")}>
-        AR
-      </button>
-    </div>
   );
 }
 
@@ -341,8 +362,10 @@ function DownloadAction({ className, t, onClick, tabIndex }) {
 }
 
 function Hero({ t }) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
-    <motion.section id="top" className="hero-section section-frame" initial="hidden" animate="visible">
+    <motion.section id="top" className="hero-section section-frame" initial={prefersReducedMotion ? false : "hidden"} animate="visible">
       <motion.div className="ambient-grid" aria-hidden="true" variants={fadeIn} />
       <motion.div className="hero-copy" variants={heroSequence}>
         <motion.div className="maker-badge" variants={heroItem}>
@@ -584,47 +607,6 @@ function FinalCTA({ t }) {
       <div><span className="eyebrow">{t.finalCta.eyebrow}</span><h2>{t.finalCta.title}</h2><p>{t.finalCta.subtitle}</p></div>
       <ActionLink url={getPrimaryDownloadUrl()} label={t.finalCta.button} unavailableLabel={t.common.comingSoon} />
     </AnimatedSection>
-  );
-}
-
-function Footer({ t }) {
-  return (
-    <AnimatedSection as="footer" className="footer section-frame" variants={fadeUp}>
-      <div className="footer-main">
-        <div>
-          <a href="#top" className="brand-mark"><span className="brand-symbol"><Download size={18} /></span><span>ApexLoad</span></a>
-          <p>{t.footer.description}</p>
-          <div className="made-by"><span>{t.footer.madeBy}</span><img src={assets.yahyazlabLogo} alt="YahyazLab" loading="lazy" width="154" height="75" /></div>
-        </div>
-        <div className="footer-links">
-          <a href="#features">{t.nav.features}</a><a href="#premium">{t.nav.premium}</a><a href="#faq">{t.nav.faq}</a>
-          <a href={siteConfig.privacyUrl}>{t.footer.privacy}</a><a href={siteConfig.termsUrl}>{t.footer.terms}</a><a href={siteConfig.supportUrl}>{t.footer.contact}</a>
-        </div>
-      </div>
-      <div className="footer-legal"><span>{t.footer.copyright}</span><p>{t.footer.disclaimer}</p></div>
-    </AnimatedSection>
-  );
-}
-
-function LegalPage({ page, t, language, setLanguage }) {
-  const content = t.legal[page];
-  return (
-    <>
-      <header className="legal-header">
-        <div className="section-frame legal-nav">
-          <a href="/" className="brand-mark" aria-label={t.nav.homeAria}><span className="brand-symbol"><Download size={18} /></span><span>ApexLoad</span></a>
-          <LanguageSwitcher t={t} language={language} setLanguage={setLanguage} />
-        </div>
-      </header>
-      <main className="legal-page section-frame">
-        <a className="legal-back" href="/"><ArrowLeft size={18} />{t.legal.backHome}</a>
-        <div className="legal-title"><span className="eyebrow"><ShieldCheck size={16} />ApexLoad</span><h1>{content.title}</h1><p>{content.intro}</p><small>{t.legal.updated}</small></div>
-        <div className="legal-sections">
-          {content.sections.map((section) => <section key={section.title}><h2>{section.title}</h2><p>{section.body}</p></section>)}
-        </div>
-        <div className="legal-disclaimer">{t.footer.disclaimer}</div>
-      </main>
-    </>
   );
 }
 
