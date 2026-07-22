@@ -1,15 +1,13 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
   ArrowUp,
   BookOpen,
-  CheckCircle2,
   ChevronDown,
   Copyright,
   FileCheck2,
-  FileText,
   Gavel,
   Headphones,
   Mail,
@@ -18,7 +16,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { submitTakedownReport } from "../api/takedownClient.js";
 import { PageSEO } from "../components/PageSEO.jsx";
 import { SiteFooter } from "../components/SiteFooter.jsx";
 import { BrandLink, LanguageSwitcher, ThemeToggle } from "../components/SiteControls.jsx";
@@ -30,7 +27,6 @@ import {
   LEGAL_ROUTES,
   SUPPORT_EMAIL,
 } from "../config/legalConfig.js";
-import { siteConfig } from "../config/siteConfig.js";
 import legalTranslations from "../i18n/legalTranslations.js";
 
 const routeIcons = {
@@ -42,68 +38,6 @@ const routeIcons = {
   support: Headphones,
   legal: BookOpen,
 };
-
-const emptyReport = {
-  fullName: "",
-  companyName: "",
-  email: "",
-  reportType: "",
-  originalWorkReference: "",
-  reportedReference: "",
-  explanation: "",
-  goodFaithAccepted: false,
-  accuracyAuthorityAccepted: false,
-  electronicSignature: "",
-  contactConsent: false,
-  website: "",
-};
-
-function normalizeForCompare(value) {
-  return String(value || "").trim().replace(/\s+/g, " ").toLocaleLowerCase();
-}
-
-function isValidEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && value.length <= 254;
-}
-
-function isValidReference(value) {
-  const trimmed = value.trim();
-  if (!/^https?:\/\//i.test(trimmed)) return trimmed.length >= 8;
-  try {
-    return new URL(trimmed).protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-function validateReport(report, messages) {
-  const errors = {};
-  const textRule = (name, min, max) => {
-    const value = report[name].trim();
-    if (!value) errors[name] = messages.required;
-    else if (value.length < min) errors[name] = messages.min;
-    else if (value.length > max) errors[name] = messages.max;
-  };
-
-  textRule("fullName", 2, 120);
-  if (report.companyName.trim().length > 160) errors.companyName = messages.max;
-  if (!report.email.trim()) errors.email = messages.required;
-  else if (!isValidEmail(report.email.trim())) errors.email = messages.email;
-  if (!report.reportType) errors.reportType = messages.required;
-  textRule("originalWorkReference", 8, 2000);
-  textRule("reportedReference", 4, 2000);
-  if (!errors.originalWorkReference && !isValidReference(report.originalWorkReference)) errors.originalWorkReference = messages.reference;
-  if (!errors.reportedReference && !isValidReference(report.reportedReference)) errors.reportedReference = messages.reference;
-  textRule("explanation", 40, 5000);
-  textRule("electronicSignature", 2, 120);
-  if (!errors.electronicSignature && normalizeForCompare(report.electronicSignature) !== normalizeForCompare(report.fullName)) {
-    errors.electronicSignature = messages.signature;
-  }
-  ["goodFaithAccepted", "accuracyAuthorityAccepted", "contactConsent"].forEach((name) => {
-    if (!report[name]) errors[name] = messages.declaration;
-  });
-  return errors;
-}
 
 function LegalHeader({ marketingT, legalT, language, setLanguage, theme, setTheme }) {
   return (
@@ -246,175 +180,52 @@ function SupportFaq({ items }) {
   );
 }
 
-function FormField({ name, label, hint, error, required, children }) {
-  const hintId = `${name}-hint`;
-  const errorId = `${name}-error`;
-  return (
-    <div className="form-field" data-invalid={Boolean(error)}>
-      <label htmlFor={name}>{label}{required && <span aria-hidden="true"> *</span>}</label>
-      {children}
-      <small id={hintId}>{hint}</small>
-      {error && <p className="field-error" id={errorId}><AlertCircle size={15} aria-hidden="true" />{error}</p>}
-    </div>
-  );
-}
-
-function FormStatus({ status, formT, statusRef }) {
-  if (!status) return null;
-  const isSuccess = status.type === "success";
-  const message = isSuccess ? `${formT.status.success} ${status.reference}` : formT.status[status.code];
-  return (
-    <div className={`form-status ${isSuccess ? "is-success" : "is-error"}`} role={isSuccess ? "status" : "alert"} tabIndex="-1" ref={statusRef}>
-      {isSuccess ? <CheckCircle2 size={21} aria-hidden="true" /> : <AlertCircle size={21} aria-hidden="true" />}
-      <p>{message}</p>
-    </div>
-  );
-}
-
-function TakedownForm({ legalT, language }) {
-  const formT = legalT.form;
-  const [report, setReport] = useState(() => ({
-    ...emptyReport,
-    formStartedAt: new Date().toISOString(),
-  }));
-  const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const openedAt = useRef(Date.now());
-  const lastSuccessFingerprint = useRef("");
-  const statusRef = useRef(null);
-
-  const update = (event) => {
-    const { name, value, type, checked } = event.target;
-    setReport((current) => ({ ...current, [name]: type === "checkbox" ? checked : value }));
-    if (errors[name]) setErrors((current) => ({ ...current, [name]: undefined }));
-    if (status) setStatus(null);
-  };
-
-  const describedBy = (name) => `${name}-hint${errors[name] ? ` ${name}-error` : ""}`;
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (isSubmitting) return;
-
-    const validationErrors = validateReport(report, formT.errors);
-    setErrors(validationErrors);
-    setStatus(null);
-    const firstError = Object.keys(validationErrors)[0];
-    if (firstError) {
-      window.requestAnimationFrame(() => document.querySelector(`[name="${firstError}"]`)?.focus());
-      return;
-    }
-    if (report.website) {
-      setStatus({ type: "error", code: "botDetected" });
-      return;
-    }
-    if (Date.now() - openedAt.current < 3000) {
-      setStatus({ type: "error", code: "tooFast" });
-      return;
-    }
-
-    const payload = { ...report, language };
-    const fingerprint = JSON.stringify(payload);
-    if (fingerprint === lastSuccessFingerprint.current) return;
-    if (!siteConfig.takedownEndpoint) {
-      setStatus({ type: "error", code: "localValidated" });
-      window.requestAnimationFrame(() => statusRef.current?.focus());
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const result = await submitTakedownReport(siteConfig.takedownEndpoint, payload);
-      lastSuccessFingerprint.current = fingerprint;
-      setStatus({ type: "success", reference: result.reference });
-    } catch (error) {
-      setStatus({ type: "error", code: formT.status[error.code] ? error.code : "requestFailed" });
-    } finally {
-      setIsSubmitting(false);
-      window.requestAnimationFrame(() => statusRef.current?.focus());
-    }
-  };
-
-  const inputProps = (name) => ({
-    id: name,
-    name,
-    value: report[name],
-    onChange: update,
-    "aria-invalid": Boolean(errors[name]),
-    "aria-describedby": describedBy(name),
-  });
+function TakedownEmailPanel({ legalT }) {
+  const emailT = legalT.emailReport;
+  const mailto = `mailto:${COPYRIGHT_EMAIL}?subject=${encodeURIComponent(emailT.subject)}`;
 
   return (
-    <form className="takedown-form" noValidate onSubmit={handleSubmit}>
-      <PolicyNotice tone={siteConfig.takedownEndpoint ? "success" : "warning"}>
-        {siteConfig.takedownEndpoint ? formT.endpointReady : formT.endpointNotice}
-      </PolicyNotice>
-      {Object.keys(errors).length > 0 && <p className="form-error-summary" role="alert">{formT.errors.summary}</p>}
+    <section className="takedown-email-panel" aria-labelledby="email-report-title">
+      <header className="email-panel-header">
+        <span className="email-panel-icon"><Mail size={24} aria-hidden="true" /></span>
+        <div>
+          <span className="email-panel-badge">{emailT.badge}</span>
+          <h3 id="email-report-title">{emailT.title}</h3>
+        </div>
+      </header>
 
-      <div className="form-grid">
-        <FormField name="fullName" label={formT.fields.fullName.label} hint={formT.fields.fullName.hint} error={errors.fullName} required>
-          <input {...inputProps("fullName")} type="text" autoComplete="name" maxLength="120" required />
-        </FormField>
-        <FormField name="companyName" label={formT.fields.companyName.label} hint={formT.fields.companyName.hint} error={errors.companyName}>
-          <input {...inputProps("companyName")} type="text" autoComplete="organization" maxLength="160" />
-        </FormField>
-        <FormField name="email" label={formT.fields.email.label} hint={formT.fields.email.hint} error={errors.email} required>
-          <input {...inputProps("email")} type="email" inputMode="email" autoComplete="email" maxLength="254" required />
-        </FormField>
-        <FormField name="reportType" label={formT.fields.reportType.label} hint={formT.fields.reportType.hint} error={errors.reportType} required>
-          <select {...inputProps("reportType")} required>
-            <option value="">{formT.reportTypes.placeholder}</option>
-            <option value="copyright">{formT.reportTypes.copyright}</option>
-            <option value="privacy">{formT.reportTypes.privacy}</option>
-            <option value="impersonation">{formT.reportTypes.impersonation}</option>
-            <option value="other">{formT.reportTypes.other}</option>
-          </select>
-        </FormField>
+      <p className="email-panel-intro">{emailT.description}</p>
+
+      <div className="email-channel-row">
+        <a className="primary-button email-report-button" href={mailto}>
+          {emailT.cta}<Send size={18} aria-hidden="true" />
+        </a>
+        <div className="email-address-block">
+          <span>{emailT.emailLabel}</span>
+          <a href={`mailto:${COPYRIGHT_EMAIL}`}>{COPYRIGHT_EMAIL}</a>
+        </div>
       </div>
 
-      <FormField name="originalWorkReference" label={formT.fields.originalWorkReference.label} hint={formT.fields.originalWorkReference.hint} error={errors.originalWorkReference} required>
-        <textarea {...inputProps("originalWorkReference")} rows="3" maxLength="2000" required />
-      </FormField>
-      <FormField name="reportedReference" label={formT.fields.reportedReference.label} hint={formT.fields.reportedReference.hint} error={errors.reportedReference} required>
-        <textarea {...inputProps("reportedReference")} rows="3" maxLength="2000" required />
-      </FormField>
-      <FormField name="explanation" label={formT.fields.explanation.label} hint={formT.fields.explanation.hint} error={errors.explanation} required>
-        <textarea {...inputProps("explanation")} rows="7" minLength="40" maxLength="5000" required />
-      </FormField>
-
-      <fieldset className="declaration-fieldset">
-        <legend>{formT.declarationsLegend}</legend>
-        {["goodFaithAccepted", "accuracyAuthorityAccepted", "contactConsent"].map((name) => (
-          <div className="declaration-row" data-invalid={Boolean(errors[name])} key={name}>
-            <input id={name} name={name} type="checkbox" checked={report[name]} onChange={update} aria-invalid={Boolean(errors[name])} aria-describedby={errors[name] ? `${name}-error` : undefined} />
-            <label htmlFor={name}>{formT.declarations[name]}</label>
-            {errors[name] && <p className="field-error" id={`${name}-error`}>{errors[name]}</p>}
-          </div>
-        ))}
-      </fieldset>
-
-      <FormField name="electronicSignature" label={formT.fields.electronicSignature.label} hint={formT.fields.electronicSignature.hint} error={errors.electronicSignature} required>
-        <input {...inputProps("electronicSignature")} type="text" autoComplete="name" maxLength="120" required />
-      </FormField>
-
-      <div className="honeypot-field" aria-hidden="true">
-        <label htmlFor="website">Website</label>
-        <input id="website" name="website" value={report.website} onChange={update} tabIndex="-1" autoComplete="off" />
+      <div className="email-report-checklist">
+        <h4>{emailT.checklistTitle}</h4>
+        <ol>
+          {emailT.checklist.map((item) => <li key={item}>{item}</li>)}
+        </ol>
       </div>
 
-      <p className="form-privacy">
-        <ShieldCheck size={17} aria-hidden="true" />
-        <Link to="/privacy">{formT.privacyText}</Link>
-      </p>
-      <FormStatus status={status} formT={formT} statusRef={statusRef} />
-      <div className="form-actions">
-        <button className="primary-button" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? formT.submitting : formT.submit}<Send size={18} aria-hidden="true" />
-        </button>
-        <a className="secondary-button" href={`mailto:${COPYRIGHT_EMAIL}`}>{formT.emailFallback}<Mail size={18} aria-hidden="true" /></a>
+      <aside className="email-safety-note">
+        <AlertCircle size={20} aria-hidden="true" />
+        <div>
+          <strong>{emailT.safetyTitle}</strong>
+          <p>{emailT.safetyText}</p>
+        </div>
+      </aside>
+
+      <div className="email-panel-footer">
+        <p><ShieldCheck size={17} aria-hidden="true" /><Link to="/privacy">{emailT.privacyLink}</Link></p>
+        <p>{emailT.expectation}</p>
       </div>
-    </form>
+    </section>
   );
 }
 
@@ -461,10 +272,10 @@ function ContentPage({ route, content, legalT, marketingT, language }) {
               <LegalSection section={section} index={index} key={section.id}>
                 {isSupport && section.id === "platforms" && <PlatformList platforms={marketingT.platforms.items} />}
                 {isSupport && section.id === "faq" && <SupportFaq items={legalT.supportFaq} />}
-                {isTakedown && section.id === "report-form" && <TakedownForm legalT={legalT} language={language} />}
+                {isTakedown && section.id === "email-report" && <TakedownEmailPanel legalT={legalT} />}
               </LegalSection>
             ))}
-            <LegalContactCard legalT={legalT} isCopyright={isCopyright} />
+            {!isTakedown && <LegalContactCard legalT={legalT} isCopyright={isCopyright} />}
             <RelatedPages legalT={legalT} currentKey={route.key} />
             <a className="back-to-top" href="#main-content"><ArrowUp size={17} aria-hidden="true" />{legalT.common.backTop}</a>
           </article>

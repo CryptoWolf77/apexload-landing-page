@@ -571,179 +571,222 @@ html[data-theme="light"] body::before {
   background: var(--panel-strong);
 }
 
-.takedown-form {
+.takedown-email-panel {
+  position: relative;
   display: grid;
-  gap: 20px;
+  gap: 22px;
   margin-top: 24px;
-  border: 1px solid var(--legal-line);
-  border-radius: 8px;
-  padding: clamp(18px, 4vw, 30px);
-  background: var(--surface);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--aqua) 30%, var(--legal-line));
+  border-radius: 14px;
+  padding: clamp(20px, 4vw, 32px);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--aqua) 9%, transparent), transparent 42%),
+    var(--surface);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.12);
 }
 
-.form-grid {
+.takedown-email-panel::before {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--aqua), var(--mint), transparent 78%);
+  content: "";
+}
+
+[dir="rtl"] .takedown-email-panel::before {
+  background: linear-gradient(-90deg, var(--aqua), var(--mint), transparent 78%);
+}
+
+.email-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.email-panel-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--aqua) 40%, transparent);
+  border-radius: 14px;
+  color: var(--aqua);
+  background: color-mix(in srgb, var(--aqua) 12%, var(--panel));
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--aqua) 12%, transparent);
+}
+
+.email-panel-badge {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--aqua);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.email-panel-header h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.22rem, 2.5vw, 1.65rem);
+  line-height: 1.2;
+}
+
+.email-panel-intro {
+  max-width: 65ch;
+  margin: 0 !important;
+}
+
+.email-channel-row {
+  display: grid;
+  grid-template-columns: minmax(220px, auto) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.email-report-button {
+  min-height: 54px;
+  justify-content: center;
+  text-align: center;
+}
+
+.email-address-block {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  border: 1px solid var(--legal-line);
+  border-radius: 12px;
+  padding: 9px 14px;
+  background: color-mix(in srgb, var(--panel-strong) 70%, transparent);
+}
+
+.email-address-block span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.email-address-block a {
+  width: fit-content;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 0.96rem;
+  font-weight: 820;
+  user-select: text;
+}
+
+.email-address-block a:hover {
+  color: var(--aqua);
+}
+
+.email-report-checklist {
+  border-top: 1px solid var(--legal-line);
+  padding-top: 20px;
+}
+
+.email-report-checklist h4 {
+  margin: 0 0 14px;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.email-report-checklist ol {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.form-field {
-  display: grid;
-  gap: 7px;
-}
-
-.form-field label,
-.declaration-fieldset legend {
-  color: var(--text);
-  font-size: 0.9rem;
-  font-weight: 790;
-}
-
-.form-field label span {
-  color: var(--danger);
-}
-
-.form-field input,
-.form-field select,
-.form-field textarea {
-  width: 100%;
-  min-height: 48px;
-  border: 1px solid var(--legal-line);
-  border-radius: 10px;
-  padding: 12px 13px;
-  color: var(--text);
-  background: var(--field-bg);
-  resize: vertical;
-}
-
-.form-field select {
-  appearance: auto;
-}
-
-.form-field small {
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-.form-field[data-invalid="true"] input,
-.form-field[data-invalid="true"] select,
-.form-field[data-invalid="true"] textarea,
-.declaration-row[data-invalid="true"] {
-  border-color: color-mix(in srgb, var(--danger) 60%, transparent);
-}
-
-.field-error,
-.form-error-summary {
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
+  gap: 9px 12px;
   margin: 0;
-  color: var(--danger) !important;
-  font-size: 0.84rem;
-  font-weight: 700;
-  line-height: 1.5 !important;
+  padding: 0;
+  list-style: none;
+  counter-reset: report-items;
 }
 
-.form-error-summary {
-  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
-  border-radius: 10px;
-  padding: 12px;
-  background: var(--danger-soft);
-}
-
-.declaration-fieldset {
+.email-report-checklist li {
   display: grid;
-  gap: 10px;
-  margin: 0;
-  border: 1px solid var(--legal-line);
-  border-radius: 10px;
-  padding: 16px;
-}
-
-.declaration-fieldset legend {
-  padding-inline: 6px;
-}
-
-.declaration-row {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
+  grid-template-columns: 28px minmax(0, 1fr);
   gap: 9px;
   align-items: start;
-  border: 1px solid transparent;
+  border: 1px solid var(--legal-line);
+  border-radius: 11px;
+  padding: 11px;
+  background: color-mix(in srgb, var(--panel) 76%, transparent);
+  font-size: 0.86rem;
+  line-height: 1.55;
+  counter-increment: report-items;
+}
+
+.email-report-checklist li::before {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
   border-radius: 8px;
-  padding: 10px;
+  color: var(--bg);
+  background: var(--mint);
+  content: counter(report-items, decimal-leading-zero);
+  font-size: 0.68rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
 }
 
-.declaration-row input {
-  width: 20px;
-  height: 20px;
-  margin: 2px 0 0;
-  accent-color: var(--aqua);
+.email-safety-note {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 11px;
+  align-items: start;
+  border: 1px solid color-mix(in srgb, var(--gold) 38%, transparent);
+  border-radius: 12px;
+  padding: 14px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--gold) 8%, var(--surface));
 }
 
-.declaration-row label {
-  color: var(--muted);
-  line-height: 1.65;
-  cursor: pointer;
+.email-safety-note svg {
+  margin-top: 2px;
+  color: var(--gold);
 }
 
-.declaration-row .field-error {
-  grid-column: 2;
-}
-
-.honeypot-field {
-  position: absolute !important;
-  left: -10000px !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
-}
-
-.form-privacy {
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  margin: 0 !important;
+.email-safety-note strong {
+  display: block;
+  margin-bottom: 3px;
   font-size: 0.88rem;
 }
 
-.form-privacy a {
+.email-safety-note p {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.email-panel-footer {
+  display: grid;
+  gap: 8px;
+}
+
+.email-panel-footer p {
+  margin: 0 !important;
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+
+.email-panel-footer p:first-child {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.email-panel-footer p:first-child svg {
+  flex: 0 0 auto;
+  color: var(--aqua);
+}
+
+.email-panel-footer a {
   color: var(--aqua);
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-
-.form-status {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
-  gap: 10px;
-  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
-  border-radius: 10px;
-  padding: 14px;
-  color: var(--danger);
-  background: var(--danger-soft);
-}
-
-.form-status.is-success {
-  border-color: color-mix(in srgb, var(--success) 40%, transparent);
-  color: var(--success);
-  background: var(--success-soft);
-}
-
-.form-status p {
-  margin: 0;
-  color: inherit;
-}
-
-.form-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.form-actions .primary-button,
-.form-actions .secondary-button {
-  min-height: 48px;
 }
 
 .not-found-page {
@@ -896,7 +939,8 @@ html[data-theme="light"] :focus-visible {
 
   .legal-toc ol,
   .legal-index-grid,
-  .form-grid {
+  .email-channel-row,
+  .email-report-checklist ol {
     grid-template-columns: 1fr;
   }
 
@@ -918,11 +962,7 @@ html[data-theme="light"] :focus-visible {
     min-height: 220px;
   }
 
-  .form-actions {
-    display: grid;
-  }
-
-  .form-actions > * {
+  .email-report-button {
     width: 100%;
   }
 
@@ -994,7 +1034,6 @@ html[data-theme="light"] :focus-visible {
   .footer,
   .related-pages,
   .back-to-top,
-  .form-actions,
   .not-found-code {
     display: none !important;
   }
@@ -1027,7 +1066,7 @@ html[data-theme="light"] :focus-visible {
 
   .policy-notice,
   .legal-contact-card,
-  .takedown-form {
+  .takedown-email-panel {
     color: #111;
     background: #fff;
     box-shadow: none;

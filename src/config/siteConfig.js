@@ -12,7 +12,6 @@ export const siteConfig = Object.freeze({
   supportUrl: optionalUrl(env.VITE_SUPPORT_URL) || "mailto:support@apexload.org",
   privacyUrl: optionalUrl(env.VITE_PRIVACY_URL) || "/privacy",
   termsUrl: optionalUrl(env.VITE_TERMS_URL) || "/terms",
-  takedownEndpoint: optionalUrl(env.VITE_TAKEDOWN_ENDPOINT),
 });
 
 export function getPrimaryDownloadUrl() {
