@@ -16,6 +16,7 @@ const MAX_REQUEST_BYTES = 24000;
  * @property {boolean} contactConsent
  * @property {"en"|"ar"} language
  * @property {string} website Honeypot field.
+ * @property {string} formStartedAt ISO timestamp captured when the form opens.
  */
 
 export class TakedownRequestError extends Error {
@@ -46,6 +47,7 @@ export function normalizeTakedownReport(report) {
     contactConsent: report.contactConsent === true,
     language: report.language === "ar" ? "ar" : "en",
     website: normalizeText(report.website),
+    formStartedAt: normalizeText(report.formStartedAt),
   };
 }
 
