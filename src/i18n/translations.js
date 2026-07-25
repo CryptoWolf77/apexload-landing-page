@@ -11,6 +11,10 @@ const translations = {
       premiumStatus: "Premium verified",
       unlocked: "Unlocked",
     },
+    brand: {
+      iconAlt: "ApexLoad app icon",
+      productLabel: "Media utility",
+    },
     nav: {
       label: "Main navigation",
       features: "Features",
@@ -47,6 +51,28 @@ const translations = {
       },
       phoneLabel: "Real ApexLoad app",
       phoneAlt: "ApexLoad home screen with paste-link field, Premium status, and supported platforms",
+    },
+    storeAvailability: {
+      ariaLabel: "ApexLoad app store availability",
+      titlePrefix: "Coming soon to",
+      titleConnector: "and the",
+      subtitle: "Official Android and iPhone release links will appear here as soon as each app is ready.",
+      googlePlay: {
+        name: "Google Play",
+        device: "For Android",
+        comingSoon: "Coming soon",
+        available: "View app",
+        comingSoonAria: "ApexLoad for Android on Google Play, coming soon",
+        availableAria: "Open ApexLoad for Android on Google Play in a new tab",
+      },
+      appStore: {
+        name: "App Store",
+        device: "For iPhone",
+        comingSoon: "Coming soon",
+        available: "View app",
+        comingSoonAria: "ApexLoad for iPhone on the App Store, coming soon",
+        availableAria: "Open ApexLoad for iPhone on the App Store in a new tab",
+      },
     },
     platforms: {
       eyebrow: "Platform support",
@@ -164,10 +190,9 @@ const translations = {
       ],
     },
     finalCta: {
-      eyebrow: "ApexLoad for Android",
+      eyebrow: "ApexLoad on mobile",
       title: "One link. The available media choices. A cleaner way to save.",
-      subtitle: "The public download link will appear here as soon as the release package is ready.",
-      button: "Download App",
+      subtitle: "Choose your preferred official store when the Android and iPhone releases are ready.",
     },
     footer: {
       description: "A smart media downloader with honest source-dependent options and practical Premium tools.",
@@ -220,6 +245,10 @@ const translations = {
       premiumStatus: "حالة بريميوم موثقة",
       unlocked: "مفتوح",
     },
+    brand: {
+      iconAlt: "أيقونة تطبيق ApexLoad",
+      productLabel: "أداة وسائط ذكية",
+    },
     nav: {
       label: "التنقل الرئيسي",
       features: "الميزات",
@@ -246,6 +275,28 @@ const translations = {
       floating: { video: "وسائط فيديو", audio: "وسائط صوتية", image: "وسائط صور", thumbnail: "صورة مصغرة" },
       phoneLabel: "تطبيق ApexLoad الحقيقي",
       phoneAlt: "شاشة ApexLoad الرئيسية مع حقل لصق الرابط وحالة بريميوم والمنصات المدعومة",
+    },
+    storeAvailability: {
+      ariaLabel: "توفر تطبيق ApexLoad في المتاجر",
+      titlePrefix: "سيتوفر قريباً على",
+      titleConnector: "و",
+      subtitle: "ستظهر روابط الإصدار الرسمية لأجهزة Android وiPhone هنا فور جاهزية كل تطبيق.",
+      googlePlay: {
+        name: "Google Play",
+        device: "لأجهزة Android",
+        comingSoon: "قريباً",
+        available: "عرض التطبيق",
+        comingSoonAria: "تطبيق ApexLoad لأجهزة Android على Google Play، سيتوفر قريباً",
+        availableAria: "فتح تطبيق ApexLoad لأجهزة Android على Google Play في علامة تبويب جديدة",
+      },
+      appStore: {
+        name: "App Store",
+        device: "لأجهزة iPhone",
+        comingSoon: "قريباً",
+        available: "عرض التطبيق",
+        comingSoonAria: "تطبيق ApexLoad لأجهزة iPhone على App Store، سيتوفر قريباً",
+        availableAria: "فتح تطبيق ApexLoad لأجهزة iPhone على App Store في علامة تبويب جديدة",
+      },
     },
     platforms: {
       eyebrow: "دعم المنصات",
@@ -349,10 +400,9 @@ const translations = {
       ],
     },
     finalCta: {
-      eyebrow: "ApexLoad لأندرويد",
+      eyebrow: "ApexLoad على الجوال",
       title: "رابط واحد، وخيارات الوسائط المتاحة، وطريقة أنظف للحفظ",
-      subtitle: "سيظهر رابط التحميل العام هنا فور جاهزية حزمة الإصدار.",
-      button: "تحميل التطبيق",
+      subtitle: "اختر متجرك الرسمي المفضل فور جاهزية إصداري Android وiPhone.",
     },
     footer: {
       description: "تطبيق تنزيل وسائط ذكي بخيارات دقيقة تعتمد على المصدر وأدوات بريميوم عملية.",

@@ -16,7 +16,7 @@ function setMeta(selector, attribute, value) {
 export function PageSEO({ seo = HOME_SEO, language = "en" }) {
   useEffect(() => {
     const canonicalUrl = new URL(seo.path || "/", `${siteConfig.siteUrl}/`).href;
-    const imageUrl = new URL(seo.image || "/og-apexload.png", `${siteConfig.siteUrl}/`).href;
+    const imageUrl = new URL(seo.image || "/og-apexload-v2.png", `${siteConfig.siteUrl}/`).href;
     const title = seo.title;
     const description = seo.description;
     const robots = seo.indexable === false ? "noindex, nofollow" : "index, follow, max-image-preview:large";

@@ -1,11 +1,21 @@
-import { Download, Globe2, Moon, Sun } from "lucide-react";
+import { Globe2, Moon, Sun } from "lucide-react";
 import { Link } from "react-router-dom";
+
+const brandIcon = "/assets/apexload-brand-icon-192.png";
+
+export function BrandIcon({ alt = "", className = "" }) {
+  return (
+    <span className={`brand-symbol ${className}`.trim()}>
+      <img src={brandIcon} alt={alt} width="192" height="192" />
+    </span>
+  );
+}
 
 export function BrandLink({ ariaLabel, onClick, to = "/" }) {
   return (
     <Link to={to} className="brand-mark" aria-label={ariaLabel} onClick={onClick}>
-      <span className="brand-symbol"><Download size={18} aria-hidden="true" /></span>
-      <span>ApexLoad</span>
+      <BrandIcon />
+      <span className="brand-wordmark">ApexLoad</span>
     </Link>
   );
 }

@@ -8,6 +8,7 @@ import {
 } from "framer-motion";
 import {
   ArrowRight,
+  Apple,
   BadgeCheck,
   Check,
   ChevronDown,
@@ -36,7 +37,7 @@ import { MotionCard } from "./components/MotionCard.jsx";
 import { PageSEO } from "./components/PageSEO.jsx";
 import { RouteEffects } from "./components/RouteEffects.jsx";
 import { SiteFooter } from "./components/SiteFooter.jsx";
-import { BrandLink, LanguageSwitcher, ThemeToggle } from "./components/SiteControls.jsx";
+import { BrandIcon, BrandLink, LanguageSwitcher, ThemeToggle } from "./components/SiteControls.jsx";
 import { getPrimaryDownloadUrl, siteConfig } from "./config/siteConfig.js";
 import legalUiTranslations from "./i18n/legalUiTranslations.js";
 import translations from "./i18n/translations.js";
@@ -72,6 +73,11 @@ const navItems = [
   { key: "howItWorks", href: "#how-it-works" },
   { key: "premium", href: "#premium" },
   { key: "faq", href: "#faq" },
+];
+
+const stores = [
+  { key: "googlePlay", device: "android", url: siteConfig.androidUrl, icon: Play },
+  { key: "appStore", device: "ios", url: siteConfig.iosUrl, icon: Apple },
 ];
 
 const featureIcons = {
@@ -361,6 +367,58 @@ function DownloadAction({ className, t, onClick, tabIndex }) {
   );
 }
 
+function StoreAvailability({ t, compact = false }) {
+  return (
+    <div className={`store-availability ${compact ? "store-availability--compact" : ""}`.trim()} role="group" aria-label={t.storeAvailability.ariaLabel}>
+      {!compact && (
+        <div className="store-availability__intro">
+          <strong className="store-availability__title">
+            <span>{t.storeAvailability.titlePrefix}</span>
+            <bdi dir="ltr">{t.storeAvailability.googlePlay.name}</bdi>
+            <span>{t.storeAvailability.titleConnector}</span>
+            <bdi dir="ltr">{t.storeAvailability.appStore.name}</bdi>
+          </strong>
+          <p>{t.storeAvailability.subtitle}</p>
+        </div>
+      )}
+      <div className="store-list">
+        {stores.map(({ key, device, url, icon: Icon }) => {
+          const store = t.storeAvailability[key];
+          const content = (
+            <>
+              <span className={`store-logo store-logo--${device}`} aria-hidden="true">
+                <Icon size={24} strokeWidth={2.2} fill={device === "android" ? "currentColor" : "none"} />
+              </span>
+              <span className="store-copy">
+                <small>{store.device}</small>
+                <strong>{store.name}</strong>
+              </span>
+              <span className="store-status">{url ? store.available : store.comingSoon}</span>
+            </>
+          );
+
+          return url ? (
+            <a
+              key={key}
+              className="store-card"
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={store.availableAria}
+            >
+              {content}
+            </a>
+          ) : (
+            <div key={key} className="store-card is-coming-soon" role="status" aria-disabled="true" aria-label={store.comingSoonAria}>
+              {content}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Hero({ t }) {
   const prefersReducedMotion = useReducedMotion();
 
@@ -368,9 +426,18 @@ function Hero({ t }) {
     <motion.section id="top" className="hero-section section-frame" initial={prefersReducedMotion ? false : "hidden"} animate="visible">
       <motion.div className="ambient-grid" aria-hidden="true" variants={fadeIn} />
       <motion.div className="hero-copy" variants={heroSequence}>
-        <motion.div className="maker-badge" variants={heroItem}>
-          <span>{t.hero.makerPrefix}</span>
-          <img src={assets.yahyazlabLogo} alt="YahyazLab" width="154" height="75" />
+        <motion.div className="hero-brand-line" variants={heroItem}>
+          <div className="hero-product-lockup">
+            <BrandIcon alt={t.brand.iconAlt} className="brand-symbol--hero" />
+            <span>
+              <strong>ApexLoad</strong>
+              <small>{t.brand.productLabel}</small>
+            </span>
+          </div>
+          <div className="maker-badge">
+            <span>{t.hero.makerPrefix}</span>
+            <img src={assets.yahyazlabLogo} alt="YahyazLab" width="154" height="75" />
+          </div>
         </motion.div>
         <motion.div className="eyebrow" variants={heroItem}><Sparkles size={16} />{t.hero.eyebrow}</motion.div>
         <motion.h1 variants={heroItem}>{t.hero.title}</motion.h1>
@@ -378,6 +445,9 @@ function Hero({ t }) {
         <motion.div className="hero-actions" variants={heroItem}>
           <ActionLink url={getPrimaryDownloadUrl()} label={t.hero.download} unavailableLabel={t.common.comingSoon} />
           <a className="secondary-button" href="#features">{t.hero.explore}<ArrowRight size={18} /></a>
+        </motion.div>
+        <motion.div variants={heroItem}>
+          <StoreAvailability t={t} />
         </motion.div>
         <motion.div className="hero-proof" aria-label={t.hero.proofLabel} variants={staggerContainer}>
           {t.hero.proof.map((item) => <motion.span key={item} variants={scaleIn}>{item}</motion.span>)}
@@ -486,7 +556,7 @@ function Features({ t }) {
     <AnimatedSection id="features" className="content-section section-frame">
       <motion.div className="section-heading" variants={fadeUp}><span className="eyebrow">{t.features.eyebrow}</span><h2>{t.features.title}</h2><p>{t.features.subtitle}</p></motion.div>
       <motion.div className="feature-grid" variants={staggerContainer}>
-        {t.features.items.map((feature) => <FeatureCard key={feature.key} {...feature} icon={featureIcons[feature.key]} />)}
+        {t.features.items.map(({ key, ...feature }) => <FeatureCard key={key} {...feature} icon={featureIcons[key]} />)}
       </motion.div>
     </AnimatedSection>
   );
@@ -604,8 +674,11 @@ function FinalCTA({ t }) {
   return (
     <AnimatedSection id="download" className="final-cta section-frame" variants={scaleIn}>
       <div className="cta-grid" aria-hidden="true"><span /><span /><span /></div>
-      <div><span className="eyebrow">{t.finalCta.eyebrow}</span><h2>{t.finalCta.title}</h2><p>{t.finalCta.subtitle}</p></div>
-      <ActionLink url={getPrimaryDownloadUrl()} label={t.finalCta.button} unavailableLabel={t.common.comingSoon} />
+      <div className="final-cta__copy">
+        <BrandIcon alt="" className="brand-symbol--cta" />
+        <div><span className="eyebrow">{t.finalCta.eyebrow}</span><h2>{t.finalCta.title}</h2><p>{t.finalCta.subtitle}</p></div>
+      </div>
+      <StoreAvailability t={t} compact />
     </AnimatedSection>
   );
 }
