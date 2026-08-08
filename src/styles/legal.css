@@ -789,6 +789,65 @@ html[data-theme="light"] body::before {
   text-underline-offset: 3px;
 }
 
+.data-deletion-panel {
+  gap: 18px;
+}
+
+.deletion-assurances {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.deletion-assurances span {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--legal-line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--panel) 76%, transparent);
+  font-size: 0.84rem;
+  font-weight: 760;
+}
+
+.deletion-assurances svg {
+  flex: 0 0 auto;
+  color: var(--mint);
+}
+
+.data-deletion-policy-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.data-deletion-policy-links a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--legal-line);
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 0.84rem;
+  font-weight: 760;
+}
+
+.data-deletion-policy-links a:hover {
+  border-color: color-mix(in srgb, var(--aqua) 40%, transparent);
+  color: var(--aqua);
+}
+
+[dir="rtl"] .data-deletion-policy-links svg {
+  transform: rotate(180deg);
+}
+
 .not-found-page {
   display: flex;
   min-height: 72vh;
@@ -960,7 +1019,8 @@ html[data-theme="light"] :focus-visible {
   .legal-toc ol,
   .legal-index-grid,
   .email-channel-row,
-  .email-report-checklist ol {
+  .email-report-checklist ol,
+  .deletion-assurances {
     grid-template-columns: 1fr;
   }
 
@@ -1086,7 +1146,8 @@ html[data-theme="light"] :focus-visible {
 
   .policy-notice,
   .legal-contact-card,
-  .takedown-email-panel {
+  .takedown-email-panel,
+  .data-deletion-policy-links a {
     color: #111;
     background: #fff;
     box-shadow: none;

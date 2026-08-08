@@ -7,6 +7,7 @@ export const LEGAL_ROUTES = Object.freeze([
   { key: "copyright", path: "/copyright", indexable: true },
   { key: "takedown", path: "/takedown", indexable: true },
   { key: "support", path: "/support", indexable: true },
+  { key: "dataDeletion", path: "/data-deletion", indexable: true, updated: "2026-08-08" },
   { key: "legal", path: "/legal", indexable: true },
 ]);
 
@@ -17,11 +18,11 @@ export const LEGAL_ROUTE_MAP = Object.freeze(
 export const SUPPORT_EMAIL = "support@apexload.org";
 export const COPYRIGHT_EMAIL = "copyright@apexload.org";
 
-export function formatLegalDate(language) {
+export function formatLegalDate(language, date = LEGAL_LAST_UPDATED) {
   return new Intl.DateTimeFormat(language === "ar" ? "ar-OM" : "en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
     timeZone: "UTC",
-  }).format(new Date(`${LEGAL_LAST_UPDATED}T00:00:00Z`));
+  }).format(new Date(`${date}T00:00:00Z`));
 }

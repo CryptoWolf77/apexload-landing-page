@@ -14,6 +14,7 @@ import {
   Scale,
   Send,
   ShieldCheck,
+  Trash2,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { PageSEO } from "../components/PageSEO.jsx";
@@ -36,6 +37,7 @@ const routeIcons = {
   copyright: Copyright,
   takedown: Gavel,
   support: Headphones,
+  dataDeletion: Trash2,
   legal: BookOpen,
 };
 
@@ -131,11 +133,15 @@ function LegalContactCard({ legalT, isCopyright = false }) {
 }
 
 function RelatedPages({ legalT, currentKey }) {
-  const preferred = currentKey === "support"
-    ? ["privacy", "terms", "legal"]
-    : currentKey === "copyright" || currentKey === "takedown"
-      ? ["copyright", "takedown", "privacy"]
-      : ["legal", "acceptableUse", "support"];
+  const preferred = currentKey === "dataDeletion"
+    ? ["privacy", "support", "terms", "acceptableUse"]
+    : currentKey === "support"
+      ? ["privacy", "dataDeletion", "terms", "legal"]
+      : currentKey === "privacy"
+        ? ["dataDeletion", "legal", "support"]
+        : currentKey === "copyright" || currentKey === "takedown"
+          ? ["copyright", "takedown", "privacy"]
+          : ["legal", "acceptableUse", "support"];
   return (
     <nav className="related-pages" aria-label={legalT.common.relatedTitle}>
       <h2>{legalT.common.relatedTitle}</h2>
@@ -229,6 +235,63 @@ function TakedownEmailPanel({ legalT }) {
   );
 }
 
+function DataDeletionRequestPanel({ legalT }) {
+  const requestT = legalT.deletionRequest;
+  const mailto = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(requestT.subject)}&body=${encodeURIComponent(requestT.body)}`;
+
+  return (
+    <section className="takedown-email-panel data-deletion-panel" aria-labelledby="data-deletion-request-title">
+      <header className="email-panel-header">
+        <span className="email-panel-icon"><ShieldCheck size={24} aria-hidden="true" /></span>
+        <div>
+          <span className="email-panel-badge">{requestT.badge}</span>
+          <h3 id="data-deletion-request-title">{requestT.title}</h3>
+        </div>
+      </header>
+
+      <p className="email-panel-intro">{requestT.description}</p>
+
+      <div className="deletion-assurances" aria-label={requestT.assurancesLabel}>
+        {requestT.assurances.map((assurance) => (
+          <span key={assurance}><ShieldCheck size={16} aria-hidden="true" />{assurance}</span>
+        ))}
+      </div>
+
+      <div className="email-channel-row">
+        <a className="primary-button email-report-button" href={mailto} aria-label={requestT.ariaLabel}>
+          {requestT.cta}<Send size={18} aria-hidden="true" />
+        </a>
+        <div className="email-address-block">
+          <span>{requestT.emailLabel}</span>
+          <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+        </div>
+      </div>
+
+      <div className="email-panel-footer">
+        <p><ShieldCheck size={17} aria-hidden="true" /><Link to="/privacy">{requestT.privacyLink}</Link></p>
+        <p>{requestT.expectation}</p>
+      </div>
+    </section>
+  );
+}
+
+function DataDeletionPolicyLinks({ legalT }) {
+  const links = [
+    ["/privacy", legalT.footer.privacy],
+    ["/terms", legalT.footer.terms],
+    ["/acceptable-use", legalT.footer.acceptableUse],
+    ["/copyright", legalT.footer.copyright],
+    ["/takedown", legalT.footer.takedown],
+    ["/support", legalT.footer.support],
+  ];
+
+  return (
+    <nav className="data-deletion-policy-links" aria-label={legalT.deletionRequest.policyLinksLabel}>
+      {links.map(([to, label]) => <Link key={to} to={to}>{label}<ArrowRight size={15} aria-hidden="true" /></Link>)}
+    </nav>
+  );
+}
+
 function LegalIndex({ legalT }) {
   const cards = LEGAL_ROUTES.filter((route) => route.key !== "legal");
   return (
@@ -253,7 +316,9 @@ function LegalIndex({ legalT }) {
 function ContentPage({ route, content, legalT, marketingT, language }) {
   const isSupport = route.key === "support";
   const isTakedown = route.key === "takedown";
+  const isDataDeletion = route.key === "dataDeletion";
   const isCopyright = route.key === "copyright" || isTakedown;
+  const updated = route.updated ?? LEGAL_LAST_UPDATED;
   return (
     <>
       <main id="main-content" className="legal-page section-frame" tabIndex="-1" data-route-focus>
@@ -262,7 +327,7 @@ function ContentPage({ route, content, legalT, marketingT, language }) {
           <span className="eyebrow"><ShieldCheck size={16} aria-hidden="true" />{isSupport ? legalT.common.helpEyebrow : legalT.common.pageEyebrow}</span>
           <h1>{content.title}</h1>
           <p>{content.intro}</p>
-          <time dateTime={LEGAL_LAST_UPDATED}>{legalT.common.updatedLabel}: {formatLegalDate(language)}</time>
+          <time dateTime={updated}>{legalT.common.updatedLabel}: {formatLegalDate(language, updated)}</time>
         </header>
 
         <div className="legal-reader">
@@ -273,9 +338,11 @@ function ContentPage({ route, content, legalT, marketingT, language }) {
                 {isSupport && section.id === "platforms" && <PlatformList platforms={marketingT.platforms.items} />}
                 {isSupport && section.id === "faq" && <SupportFaq items={legalT.supportFaq} />}
                 {isTakedown && section.id === "email-report" && <TakedownEmailPanel legalT={legalT} />}
+                {isDataDeletion && section.id === "request-deletion" && <DataDeletionRequestPanel legalT={legalT} />}
+                {isDataDeletion && section.id === "privacy-policies" && <DataDeletionPolicyLinks legalT={legalT} />}
               </LegalSection>
             ))}
-            {!isTakedown && <LegalContactCard legalT={legalT} isCopyright={isCopyright} />}
+            {!isTakedown && !isDataDeletion && <LegalContactCard legalT={legalT} isCopyright={isCopyright} />}
             <RelatedPages legalT={legalT} currentKey={route.key} />
             <a className="back-to-top" href="#main-content"><ArrowUp size={17} aria-hidden="true" />{legalT.common.backTop}</a>
           </article>

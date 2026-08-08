@@ -10,6 +10,7 @@ export function SiteFooter({ t, legalT }) {
     ["/acceptable-use", legalT.footer.acceptableUse],
     ["/copyright", legalT.footer.copyright],
     ["/takedown", legalT.footer.takedown],
+    ["/data-deletion", legalT.footer.dataDeletion],
     ["/support", legalT.footer.support],
     ["/legal", legalT.footer.legal],
   ];
