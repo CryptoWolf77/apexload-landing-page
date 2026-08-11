@@ -354,8 +354,8 @@ const translations = {
         { key: "tools", title: "أدوات المنشئين والمحرر", detail: "افتح المحرر السريع وأدوات بريميوم الظاهرة في التطبيق." },
       ],
       plans: [
-        { key: "monthly", name: "شهري", price: "0.99 دولار", cadence: "شهرياً", cta: "ابدأ الشهري", highlighted: false },
-        { key: "yearly", name: "سنوي", price: "9.99 دولار", cadence: "سنوياً", cta: "اختر السنوي", highlighted: true },
+        { key: "monthly", name: "شهري", price: "$0.99", cadence: "شهرياً", cta: "ابدأ الشهري", highlighted: false },
+        { key: "yearly", name: "سنوي", price: "$9.99", cadence: "سنوياً", cta: "اختر السنوي", highlighted: true },
       ],
     },
     previews: {

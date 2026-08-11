@@ -1479,13 +1479,24 @@ a.store-card .store-status {
 }
 
 .price-row strong {
+  direction: ltr;
   font-size: 3.2rem;
   line-height: 1;
+  unicode-bidi: isolate;
+  white-space: nowrap;
 }
 
 .price-row span {
   color: var(--muted);
   font-weight: 700;
+}
+
+[dir="rtl"] .price-row {
+  direction: ltr;
+}
+
+[dir="rtl"] .price-row span {
+  direction: rtl;
 }
 
 .pricing-card a,
