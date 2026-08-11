@@ -38,6 +38,7 @@ import { PageSEO } from "./components/PageSEO.jsx";
 import { RouteEffects } from "./components/RouteEffects.jsx";
 import { SiteFooter } from "./components/SiteFooter.jsx";
 import { BrandIcon, BrandLink, LanguageSwitcher, ThemeToggle } from "./components/SiteControls.jsx";
+import { WaveField } from "./components/WaveField.jsx";
 import { getPrimaryDownloadUrl, siteConfig } from "./config/siteConfig.js";
 import legalUiTranslations from "./i18n/legalUiTranslations.js";
 import translations from "./i18n/translations.js";
@@ -158,6 +159,7 @@ function App() {
       data-theme={theme}
       data-reduced-motion={prefersReducedMotion ? "true" : "false"}
     >
+      <WaveField reducedMotion={prefersReducedMotion} />
       <a className="skip-link" href="#main-content">{legalT.common.skip}</a>
       <RouteEffects />
       <Routes>
