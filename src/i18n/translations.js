@@ -79,14 +79,13 @@ const translations = {
       title: "One workflow for supported social-media links",
       subtitle: "Availability depends on the platform, content type, source access, and regional restrictions.",
       items: [
-        { key: "youtube", label: "YouTube" },
         { key: "tiktok", label: "TikTok" },
         { key: "instagram", label: "Instagram" },
+        { key: "snapchat", label: "Snapchat" },
         { key: "x", label: "X / Twitter" },
         { key: "facebook", label: "Facebook" },
-        { key: "snapchat", label: "Snapchat" },
-        { key: "whatsapp", label: "WhatsApp Status" },
-        { key: "more", label: "More sources" },
+        { key: "pinterest", label: "Pinterest" },
+        { key: "reddit", label: "Reddit" },
       ],
     },
     features: {
@@ -303,10 +302,10 @@ const translations = {
       title: "تدفق واحد لروابط السوشيال ميديا المدعومة",
       subtitle: "يعتمد التوفر على المنصة ونوع المحتوى وإمكانية الوصول إلى المصدر والقيود الإقليمية.",
       items: [
-        { key: "youtube", label: "YouTube" }, { key: "tiktok", label: "TikTok" },
-        { key: "instagram", label: "Instagram" }, { key: "x", label: "X / Twitter" },
-        { key: "facebook", label: "Facebook" }, { key: "snapchat", label: "Snapchat" },
-        { key: "whatsapp", label: "حالات WhatsApp" }, { key: "more", label: "مصادر أخرى" },
+        { key: "tiktok", label: "TikTok" }, { key: "instagram", label: "Instagram" },
+        { key: "snapchat", label: "Snapchat" }, { key: "x", label: "X / Twitter" },
+        { key: "facebook", label: "Facebook" }, { key: "pinterest", label: "Pinterest" },
+        { key: "reddit", label: "Reddit" },
       ],
     },
     features: {

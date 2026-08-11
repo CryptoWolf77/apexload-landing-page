@@ -23,8 +23,10 @@ import {
   Layers3,
   Library,
   Link as LinkIcon,
+  MessageCircle,
   Menu,
   Music,
+  Pin,
   Play,
   ShieldCheck,
   Sparkles,
@@ -544,12 +546,13 @@ function PlatformStrip({ t }) {
 
 function PlatformGlyph({ platformKey }) {
   if (platformKey === "facebook") return <Facebook size={20} />;
-  if (platformKey === "youtube") return <Play size={20} fill="currentColor" />;
   if (platformKey === "tiktok") return <Music size={20} />;
   if (platformKey === "instagram") return <Image size={20} />;
   if (platformKey === "x") return <X size={20} />;
   if (platformKey === "whatsapp") return <BadgeCheck size={20} />;
   if (platformKey === "snapchat") return <Sparkles size={20} />;
+  if (platformKey === "pinterest") return <Pin size={20} />;
+  if (platformKey === "reddit") return <MessageCircle size={20} />;
   return <Layers3 size={20} />;
 }
 
@@ -616,15 +619,122 @@ function Premium({ t }) {
 
 function AppPreview({ t }) {
   const previews = t.previews.items.map((preview, index) => ({ ...preview, ...previewMeta[index] }));
+  const prefersReducedMotion = useReducedMotion();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocusWithin, setIsFocusWithin] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const [stageWidth, setStageWidth] = useState(1180);
+  const stageRef = useRef(null);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return undefined;
+
+    const updateWidth = () => setStageWidth(stage.getBoundingClientRect().width);
+    updateWidth();
+
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(stage);
+    const visibilityObserver = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.3 },
+    );
+    visibilityObserver.observe(stage);
+    return () => {
+      observer.disconnect();
+      visibilityObserver.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion || isHovered || isFocusWithin || !isInView) return undefined;
+    const interval = window.setInterval(() => {
+      setActiveIndex((current) => (current - 1 + previews.length) % previews.length);
+    }, 1100);
+    return () => window.clearInterval(interval);
+  }, [isFocusWithin, isHovered, isInView, prefersReducedMotion, previews.length]);
+
+  const getSlot = (index) => {
+    let slot = index - activeIndex;
+    const midpoint = Math.floor(previews.length / 2);
+    if (slot > midpoint) slot -= previews.length;
+    if (slot < -midpoint) slot += previews.length;
+    return slot;
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    const direction = event.key === "ArrowLeft" ? -1 : 1;
+    setActiveIndex((current) => (current + direction + previews.length) % previews.length);
+  };
+
+  const handleBlur = (event) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) setIsFocusWithin(false);
+  };
+
+  const horizontalStep = stageWidth <= 560
+    ? stageWidth * 0.55
+    : Math.min(Math.max(stageWidth * 0.145, 126), 218);
+  const scales = [1, 0.84, 0.7, 0.59];
+  const transition = prefersReducedMotion
+    ? { duration: 0.01 }
+    : { type: "spring", stiffness: 125, damping: 22, mass: 0.85 };
+
   return (
     <AnimatedSection className="preview-section section-frame">
       <motion.div className="section-heading" variants={fadeUp}><span className="eyebrow">{t.previews.eyebrow}</span><h2>{t.previews.title}</h2><p>{t.previews.subtitle}</p></motion.div>
-      <motion.div className="preview-track" variants={staggerContainer}>
-        {previews.map((preview) => (
-          <MotionCard as="div" className="preview-card" key={preview.key} hover={{ y: -8, rotateX: 1.2, rotateY: -1 }}>
-            <PhoneMockup src={preview.src} alt={preview.alt} label={`${preview.title} — ${preview.label}`} variant={preview.variant} />
-          </MotionCard>
-        ))}
+      <motion.div
+        ref={stageRef}
+        className="preview-coverflow"
+        role="region"
+        aria-label={t.previews.eyebrow}
+        aria-roledescription="carousel"
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        onPointerEnter={() => setIsHovered(true)}
+        onPointerLeave={() => setIsHovered(false)}
+        onFocusCapture={() => setIsFocusWithin(true)}
+        onBlurCapture={handleBlur}
+        variants={fadeIn}
+      >
+        <span className="sr-only" aria-live="polite" aria-atomic="true">
+          {previews[activeIndex].title}: {previews[activeIndex].label}
+        </span>
+        {previews.map((preview, index) => {
+          const slot = getSlot(index);
+          const distance = Math.abs(slot);
+          const isActive = index === activeIndex;
+          return (
+            <motion.button
+              type="button"
+              className="preview-coverflow__item"
+              key={preview.key}
+              data-active={isActive}
+              data-distance={distance}
+              aria-label={`${preview.title}: ${preview.label}`}
+              aria-current={isActive ? "true" : undefined}
+              tabIndex={-1}
+              onClick={() => setActiveIndex(index)}
+              animate={{
+                x: slot * horizontalStep,
+                y: distance * 18,
+                scale: scales[distance],
+                rotateY: slot * -9,
+                opacity: 1 - distance * 0.17,
+              }}
+              transition={transition}
+              style={{ zIndex: previews.length - distance }}
+            >
+              <PhoneMockup src={preview.src} alt={preview.alt} variant="center" />
+              <span className="preview-coverflow__caption" aria-hidden="true">
+                <strong>{preview.title}</strong>
+                <span>{preview.label}</span>
+              </span>
+            </motion.button>
+          );
+        })}
       </motion.div>
     </AnimatedSection>
   );
