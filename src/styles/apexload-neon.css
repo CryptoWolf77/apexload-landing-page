@@ -31,7 +31,6 @@
 .feature-card,
 .step-card,
 .pricing-card,
-.preview-card,
 .real-flow-card,
 .premium-device-card,
 .faq-item {
@@ -147,7 +146,6 @@ html[data-theme="light"] .motion-card-tilt::before {
   .feature-card,
   .step-card,
   .pricing-card,
-  .preview-card,
   .real-flow-card,
   .premium-device-card,
   .faq-item {
