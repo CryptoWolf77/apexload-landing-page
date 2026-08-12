@@ -72,6 +72,9 @@
   --card-glare-y: 50%;
   --card-glare-opacity: 0;
   transform-style: preserve-3d;
+}
+
+.motion-card-tilt:hover {
   will-change: transform;
 }
 
@@ -149,7 +152,11 @@ html[data-theme="light"] .motion-card-tilt::before {
   .real-flow-card,
   .premium-device-card,
   .faq-item {
-    backdrop-filter: blur(13px) saturate(1.05);
+    backdrop-filter: blur(7px) saturate(1.03);
+  }
+
+  .navbar-wrap {
+    backdrop-filter: blur(10px);
   }
 }
 

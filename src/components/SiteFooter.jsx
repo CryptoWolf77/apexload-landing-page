@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { BrandLink } from "./SiteControls.jsx";
 
-const logo = "/assets/yahyazlab-logo-compact.png";
+const logo = "/assets/yahyazlab-logo-154.webp";
 
 export function SiteFooter({ t, legalT }) {
   const policyLinks = [
@@ -23,7 +23,7 @@ export function SiteFooter({ t, legalT }) {
           <p>{t.footer.description}</p>
           <div className="made-by">
             <span>{t.footer.madeBy}</span>
-            <img src={logo} alt="YahyazLab" loading="lazy" width="154" height="75" />
+            <img src={logo} srcSet={`${logo} 154w, /assets/yahyazlab-logo-256.webp 256w`} sizes="126px" alt="YahyazLab" loading="lazy" decoding="async" width="154" height="75" />
           </div>
         </div>
         <nav className="footer-links" aria-label={legalT.common.policies}>

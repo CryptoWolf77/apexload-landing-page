@@ -67,10 +67,16 @@ export function WaveField({ reducedMotion = false }) {
     let frameId = 0;
     let width = 0;
     let height = 0;
+    const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    const activeRibbons = ribbons.slice(0, coarsePointer ? 12 : 18);
+    const frameInterval = 1000 / (coarsePointer ? 30 : 45);
     let startTime = performance.now();
+    let lastFrameTime = 0;
+    let resizeFrameId = 0;
+    let running = false;
 
     const resize = () => {
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, coarsePointer ? 1 : 1.5);
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = Math.max(1, Math.floor(width * pixelRatio));
@@ -80,29 +86,61 @@ export function WaveField({ reducedMotion = false }) {
       context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     };
 
-    const render = (timestamp) => {
+    const draw = (timestamp) => {
       context.clearRect(0, 0, width, height);
       context.save();
       context.globalCompositeOperation = "lighter";
       const elapsed = reducedMotion ? 12 : (timestamp - startTime) / 1000;
-      ribbons.forEach((ribbon) => drawRibbon(context, width, height, ribbon, elapsed));
+      activeRibbons.forEach((ribbon) => drawRibbon(context, width, height, ribbon, elapsed));
       context.restore();
+    };
 
-      if (!reducedMotion) frameId = window.requestAnimationFrame(render);
+    const render = (timestamp) => {
+      if (!running) return;
+      if (timestamp - lastFrameTime >= frameInterval) {
+        lastFrameTime = timestamp;
+        draw(timestamp);
+      }
+
+      frameId = window.requestAnimationFrame(render);
     };
 
     const handleResize = () => {
-      resize();
-      if (reducedMotion) render(startTime);
+      window.cancelAnimationFrame(resizeFrameId);
+      resizeFrameId = window.requestAnimationFrame(() => {
+        resize();
+        draw(performance.now());
+      });
+    };
+
+    const start = () => {
+      if (running || reducedMotion || document.hidden) return;
+      running = true;
+      lastFrameTime = 0;
+      frameId = window.requestAnimationFrame(render);
+    };
+
+    const stop = () => {
+      running = false;
+      window.cancelAnimationFrame(frameId);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) stop();
+      else start();
     };
 
     resize();
-    frameId = window.requestAnimationFrame(render);
+    draw(startTime);
+    start();
     window.addEventListener("resize", handleResize, { passive: true });
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.cancelAnimationFrame(frameId);
+      stop();
+      window.cancelAnimationFrame(resizeFrameId);
       window.removeEventListener("resize", handleResize);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [reducedMotion]);
 

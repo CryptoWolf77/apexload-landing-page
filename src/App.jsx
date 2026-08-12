@@ -68,8 +68,11 @@ const assets = {
   premiumDownloads: "/assets/apexload-premium-downloads.jpeg",
   premiumTools: "/assets/apexload-premium-tools.jpeg",
   premiumPlans: "/assets/apexload-premium-plans.jpeg",
-  yahyazlabLogo: "/assets/yahyazlab-logo-compact.png",
+  yahyazlabLogo: "/assets/yahyazlab-logo-256.webp",
+  yahyazlabLogoSmall: "/assets/yahyazlab-logo-154.webp",
 };
+
+const screenshotSrcSet = (name) => `/assets/${name}-360.webp 360w, /assets/${name}-560.webp 560w, /assets/${name}-738.webp 738w`;
 
 const navItems = [
   { key: "features", href: "#features" },
@@ -97,13 +100,13 @@ const featureIcons = {
 };
 
 const previewMeta = [
-  { src: assets.home, variant: "leftTilt" },
-  { src: assets.quickEditor, variant: "center" },
-  { src: assets.premiumOverview, variant: "rightTilt" },
-  { src: assets.settings, variant: "small" },
-  { src: assets.premiumDownloads, variant: "small" },
-  { src: assets.premiumTools, variant: "small" },
-  { src: assets.premiumPlans, variant: "small" },
+  { src: assets.home, srcSet: screenshotSrcSet("apexload-home"), variant: "leftTilt" },
+  { src: assets.quickEditor, srcSet: screenshotSrcSet("apexload-quick-editor"), variant: "center" },
+  { src: assets.premiumOverview, srcSet: screenshotSrcSet("apexload-premium-overview"), variant: "rightTilt" },
+  { src: assets.settings, srcSet: screenshotSrcSet("apexload-settings"), variant: "small" },
+  { src: assets.premiumDownloads, srcSet: screenshotSrcSet("apexload-premium-downloads"), variant: "small" },
+  { src: assets.premiumTools, srcSet: screenshotSrcSet("apexload-premium-tools"), variant: "small" },
+  { src: assets.premiumPlans, srcSet: screenshotSrcSet("apexload-premium-plans"), variant: "small" },
 ];
 
 function getInitialLanguage() {
@@ -238,10 +241,24 @@ function Navbar({ t, legalT, language, setLanguage, theme, setTheme, menuOpen, s
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    const updateScrolled = () => setScrolled(window.scrollY > 18);
+    let frameId = 0;
+    let lastValue;
+    const updateScrolled = () => {
+      frameId = 0;
+      const nextValue = window.scrollY > 18;
+      if (nextValue === lastValue) return;
+      lastValue = nextValue;
+      setScrolled(nextValue);
+    };
+    const handleScroll = () => {
+      if (!frameId) frameId = window.requestAnimationFrame(updateScrolled);
+    };
     updateScrolled();
-    window.addEventListener("scroll", updateScrolled, { passive: true });
-    return () => window.removeEventListener("scroll", updateScrolled);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -440,7 +457,7 @@ function Hero({ t }) {
           </div>
           <div className="maker-badge">
             <span>{t.hero.makerPrefix}</span>
-            <img src={assets.yahyazlabLogo} alt="YahyazLab" width="154" height="75" />
+            <img src={assets.yahyazlabLogoSmall} srcSet={`${assets.yahyazlabLogoSmall} 154w, ${assets.yahyazlabLogo} 256w`} sizes="92px" alt="YahyazLab" width="154" height="75" />
           </div>
         </motion.div>
         <motion.div className="eyebrow" variants={heroItem}><Sparkles size={16} />{t.hero.eyebrow}</motion.div>
@@ -467,7 +484,7 @@ function Hero({ t }) {
         <motion.div className="hero-chip chip-mp3" variants={chipEntrance} custom={0.62}>{t.hero.chips.mp3}</motion.div>
         <motion.div className="hero-chip chip-paste" variants={chipEntrance} custom={0.74}>{t.hero.chips.paste}</motion.div>
         <motion.div className="hero-chip chip-fast" variants={chipEntrance} custom={0.86}><span className="zap-dot"><Layers3 size={13} /></span>{t.hero.chips.fast}</motion.div>
-        <PhoneMockup src={assets.home} srcSet={`${assets.homeSmall} 360w, ${assets.home} 738w`} sizes="(max-width: 560px) 78vw, 330px" alt={t.hero.phoneAlt} label={t.hero.phoneLabel} variant="hero" />
+        <PhoneMockup src={assets.home} srcSet={screenshotSrcSet("apexload-home")} sizes="(max-width: 560px) 78vw, 360px" alt={t.hero.phoneAlt} label={t.hero.phoneLabel} variant="hero" />
       </motion.div>
     </motion.section>
   );
@@ -610,7 +627,7 @@ function Premium({ t }) {
           ))}
         </motion.div>
         <motion.div className="premium-device-card" variants={scaleIn}>
-          <PhoneMockup src={assets.premiumOverview} alt={t.premium.deviceAlt} label={t.premium.deviceLabel} variant="small" />
+          <PhoneMockup src={assets.premiumOverview} srcSet={screenshotSrcSet("apexload-premium-overview")} sizes="252px" alt={t.premium.deviceAlt} label={t.premium.deviceLabel} variant="small" />
         </motion.div>
       </motion.div>
     </AnimatedSection>
@@ -624,6 +641,7 @@ function AppPreview({ t }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isFocusWithin, setIsFocusWithin] = useState(false);
   const [isInView, setIsInView] = useState(false);
+  const [isPageVisible, setIsPageVisible] = useState(() => !document.hidden);
   const [stageWidth, setStageWidth] = useState(1180);
   const stageRef = useRef(null);
 
@@ -648,12 +666,18 @@ function AppPreview({ t }) {
   }, []);
 
   useEffect(() => {
-    if (prefersReducedMotion || isHovered || isFocusWithin || !isInView) return undefined;
+    const handleVisibilityChange = () => setIsPageVisible(!document.hidden);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion || isHovered || isFocusWithin || !isInView || !isPageVisible) return undefined;
     const interval = window.setInterval(() => {
       setActiveIndex((current) => (current - 1 + previews.length) % previews.length);
     }, 1100);
     return () => window.clearInterval(interval);
-  }, [isFocusWithin, isHovered, isInView, prefersReducedMotion, previews.length]);
+  }, [isFocusWithin, isHovered, isInView, isPageVisible, prefersReducedMotion, previews.length]);
 
   const getSlot = (index) => {
     let slot = index - activeIndex;
@@ -727,7 +751,7 @@ function AppPreview({ t }) {
               transition={transition}
               style={{ zIndex: previews.length - distance }}
             >
-              <PhoneMockup src={preview.src} alt={preview.alt} variant="center" />
+              <PhoneMockup src={preview.src} srcSet={preview.srcSet} sizes="(max-width: 560px) 78vw, 318px" alt={preview.alt} variant="center" />
               <span className="preview-coverflow__caption" aria-hidden="true">
                 <strong>{preview.title}</strong>
                 <span>{preview.label}</span>
@@ -745,7 +769,7 @@ function WhyApexLoad({ t }) {
     <AnimatedSection className="why-section section-frame">
       <motion.div className="why-copy" variants={fadeUp}><span className="eyebrow">{t.why.eyebrow}</span><h2>{t.why.title}</h2><p>{t.why.subtitle}</p><motion.div className="reason-list" variants={staggerContainer}>{t.why.reasons.map((reason) => <motion.div key={reason} variants={cardItem}><Check size={17} /><span>{reason}</span></motion.div>)}</motion.div></motion.div>
       <MotionCard as="div" className="real-flow-card" variants={scaleIn} hover={{ y: -8, rotateX: 1, rotateY: -1 }}>
-        <PhoneMockup src={assets.settings} alt={t.why.deviceAlt} label={t.why.deviceLabel} variant="rightTilt" />
+        <PhoneMockup src={assets.settings} srcSet={screenshotSrcSet("apexload-settings")} sizes="294px" alt={t.why.deviceAlt} label={t.why.deviceLabel} variant="rightTilt" />
         <div className="flow-note"><ShieldCheck size={22} /><div><strong>{t.why.flowTitle}</strong><span>{t.why.flowText}</span></div></div>
       </MotionCard>
     </AnimatedSection>
