@@ -3,7 +3,7 @@ import { siteConfig } from "../config/siteConfig.js";
 
 const HOME_SEO = {
   title: "ApexLoad — Social Media Video, Image and Audio Downloader",
-  description: "Download supported social-media videos, images and audio with smart format detection, high-quality options and powerful Premium tools.",
+  description: "Download supported social-media videos, images and audio with smart format detection and Premium tools. ApexLoad is available on Google Play for Android.",
   path: "/",
   indexable: true,
 };

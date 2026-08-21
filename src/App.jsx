@@ -368,7 +368,7 @@ function ActionLink({ url, label, unavailableLabel, className = "primary-button"
 
   const external = /^https?:\/\//i.test(url);
   return (
-    <a className={className} href={url} tabIndex={tabIndex} onClick={onClick} target={external ? "_blank" : undefined} rel={external ? "noreferrer" : undefined}>
+    <a className={className} href={url} tabIndex={tabIndex} onClick={onClick} target={external ? "_blank" : undefined} rel={external ? "noopener noreferrer" : undefined}>
       <span>{label}</span>
       <Icon size={18} aria-hidden="true" />
     </a>
@@ -424,7 +424,7 @@ function StoreAvailability({ t, compact = false }) {
               className="store-card"
               href={url}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               aria-label={store.availableAria}
             >
               {content}

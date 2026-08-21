@@ -1,4 +1,5 @@
 const env = import.meta.env;
+const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.yahyazlab.apexload";
 
 function optionalUrl(value) {
   return typeof value === "string" && value.trim() ? value.trim() : "";
@@ -6,7 +7,7 @@ function optionalUrl(value) {
 
 export const siteConfig = Object.freeze({
   siteUrl: optionalUrl(env.VITE_SITE_URL) || "https://apexload.org",
-  androidUrl: optionalUrl(env.VITE_ANDROID_URL),
+  androidUrl: GOOGLE_PLAY_URL,
   iosUrl: optionalUrl(env.VITE_IOS_URL),
   premiumUrl: optionalUrl(env.VITE_PREMIUM_URL),
   supportUrl: optionalUrl(env.VITE_SUPPORT_URL) || "mailto:support@apexload.org",

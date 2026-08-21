@@ -54,16 +54,14 @@ const translations = {
     },
     storeAvailability: {
       ariaLabel: "ApexLoad app store availability",
-      titlePrefix: "Coming soon to",
-      titleConnector: "and the",
-      subtitle: "Official Android and iPhone release links will appear here as soon as each app is ready.",
+      titlePrefix: "Available now on",
+      titleConnector: "and coming soon to the",
+      subtitle: "Download ApexLoad for Android from Google Play. The iPhone release is still coming soon.",
       googlePlay: {
         name: "Google Play",
         device: "For Android",
-        comingSoon: "Coming soon",
-        available: "View app",
-        comingSoonAria: "ApexLoad for Android on Google Play, coming soon",
-        availableAria: "Open ApexLoad for Android on Google Play in a new tab",
+        available: "Available now",
+        availableAria: "Open the available ApexLoad Android app on Google Play in a new tab",
       },
       appStore: {
         name: "App Store",
@@ -191,7 +189,7 @@ const translations = {
     finalCta: {
       eyebrow: "ApexLoad on mobile",
       title: "One link. The available media choices. A cleaner way to save.",
-      subtitle: "Choose your preferred official store when the Android and iPhone releases are ready.",
+      subtitle: "Download ApexLoad for Android from Google Play. The iPhone release is coming soon.",
     },
     footer: {
       description: "A smart media downloader with honest source-dependent options and practical Premium tools.",
@@ -277,16 +275,14 @@ const translations = {
     },
     storeAvailability: {
       ariaLabel: "توفر تطبيق ApexLoad في المتاجر",
-      titlePrefix: "سيتوفر قريباً على",
-      titleConnector: "و",
-      subtitle: "ستظهر روابط الإصدار الرسمية لأجهزة Android وiPhone هنا فور جاهزية كل تطبيق.",
+      titlePrefix: "متوفر الآن على",
+      titleConnector: "وسيتوفر قريباً على",
+      subtitle: "حمّل ApexLoad لأجهزة Android من Google Play. وسيتوفر إصدار iPhone قريباً.",
       googlePlay: {
         name: "Google Play",
         device: "لأجهزة Android",
-        comingSoon: "قريباً",
-        available: "عرض التطبيق",
-        comingSoonAria: "تطبيق ApexLoad لأجهزة Android على Google Play، سيتوفر قريباً",
-        availableAria: "فتح تطبيق ApexLoad لأجهزة Android على Google Play في علامة تبويب جديدة",
+        available: "متوفر الآن",
+        availableAria: "فتح تطبيق ApexLoad المتوفر لأجهزة Android على Google Play في علامة تبويب جديدة",
       },
       appStore: {
         name: "App Store",
@@ -401,7 +397,7 @@ const translations = {
     finalCta: {
       eyebrow: "ApexLoad على الجوال",
       title: "رابط واحد، وخيارات الوسائط المتاحة، وطريقة أنظف للحفظ",
-      subtitle: "اختر متجرك الرسمي المفضل فور جاهزية إصداري Android وiPhone.",
+      subtitle: "حمّل ApexLoad لأجهزة Android من Google Play. وسيتوفر إصدار iPhone قريباً.",
     },
     footer: {
       description: "تطبيق تنزيل وسائط ذكي بخيارات دقيقة تعتمد على المصدر وأدوات بريميوم عملية.",

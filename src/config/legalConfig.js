@@ -1,7 +1,7 @@
 export const LEGAL_LAST_UPDATED = "2026-07-15";
 
 export const LEGAL_ROUTES = Object.freeze([
-  { key: "privacy", path: "/privacy", indexable: true },
+  { key: "privacy", path: "/privacy", indexable: true, updated: "2026-08-21" },
   { key: "terms", path: "/terms", indexable: true },
   { key: "acceptableUse", path: "/acceptable-use", indexable: true },
   { key: "copyright", path: "/copyright", indexable: true },
