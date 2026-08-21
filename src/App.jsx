@@ -236,8 +236,10 @@ function LandingPage({ t, legalT, language, setLanguage, theme, setTheme }) {
 
 function Navbar({ t, legalT, language, setLanguage, theme, setTheme, menuOpen, setMenuOpen }) {
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
   const [isMobile, setIsMobile] = useState(() => window.matchMedia("(max-width: 820px)").matches);
   const menuButtonRef = useRef(null);
+  const menuRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -262,13 +264,34 @@ function Navbar({ t, legalT, language, setLanguage, theme, setTheme, menuOpen, s
   }, []);
 
   useEffect(() => {
+    const sections = navItems
+      .map(({ href }) => document.getElementById(href.slice(1)))
+      .filter(Boolean);
+
+    if (!sections.length) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleSection = entries.find((entry) => entry.isIntersecting);
+        if (visibleSection) setActiveSection(visibleSection.target.id);
+      },
+      { rootMargin: "-24% 0px -66%", threshold: 0 },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     const closeOnEscape = (event) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key !== "Escape" || !menuOpen) return;
+      setMenuOpen(false);
+      window.requestAnimationFrame(() => menuButtonRef.current?.focus());
     };
 
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [setMenuOpen]);
+  }, [menuOpen, setMenuOpen]);
 
   useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 820px)");
@@ -282,7 +305,16 @@ function Navbar({ t, legalT, language, setLanguage, theme, setTheme, menuOpen, s
     return () => mobileQuery.removeEventListener("change", syncMobileState);
   }, [setMenuOpen]);
 
+  useEffect(() => {
+    if (!isMobile || !menuOpen) return;
+    menuRef.current?.querySelector("a, button")?.focus();
+  }, [isMobile, menuOpen]);
+
   const closeMenu = () => setMenuOpen(false);
+  const closeMenuAndRestoreFocus = () => {
+    setMenuOpen(false);
+    window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+  };
   const mobileMenuClosed = isMobile && !menuOpen;
   const closedMenuTabIndex = mobileMenuClosed ? -1 : undefined;
   const redirectClosedMenuFocus = (event) => {
@@ -304,6 +336,7 @@ function Navbar({ t, legalT, language, setLanguage, theme, setTheme, menuOpen, s
         <div
           id="mobile-navigation"
           className="nav-links"
+          ref={menuRef}
           data-open={menuOpen}
           aria-label={t.nav.menuId}
           aria-hidden={mobileMenuClosed || undefined}
@@ -311,7 +344,19 @@ function Navbar({ t, legalT, language, setLanguage, theme, setTheme, menuOpen, s
           onFocusCapture={redirectClosedMenuFocus}
         >
           {navItems.map((item) => (
-            <a key={item.key} href={item.href} tabIndex={closedMenuTabIndex} onClick={closeMenu}>{t.nav[item.key]}</a>
+            <a
+              key={item.key}
+              className={activeSection === item.href.slice(1) ? "is-active" : undefined}
+              href={item.href}
+              tabIndex={closedMenuTabIndex}
+              aria-current={activeSection === item.href.slice(1) ? "location" : undefined}
+              onClick={() => {
+                setActiveSection(item.href.slice(1));
+                closeMenu();
+              }}
+            >
+              {t.nav[item.key]}
+            </a>
           ))}
           <Link to="/support" tabIndex={closedMenuTabIndex} onClick={closeMenu}>{legalT.footer.support}</Link>
           <div className="mobile-language">
@@ -319,38 +364,29 @@ function Navbar({ t, legalT, language, setLanguage, theme, setTheme, menuOpen, s
               t={t}
               language={language}
               setLanguage={setLanguage}
-              onChange={closeMenu}
+              onChange={closeMenuAndRestoreFocus}
               tabIndex={closedMenuTabIndex}
             />
           </div>
-          <div className="mobile-theme">
-            <ThemeToggle
-              theme={theme}
-              setTheme={setTheme}
-              label={theme === "dark" ? legalT.common.themeToLight : legalT.common.themeToDark}
-              tabIndex={closedMenuTabIndex}
-            />
-          </div>
-          <DownloadAction className="nav-download mobile-download" t={t} onClick={closeMenu} tabIndex={closedMenuTabIndex} />
         </div>
 
         <div className="nav-actions">
           <ThemeToggle theme={theme} setTheme={setTheme} label={theme === "dark" ? legalT.common.themeToLight : legalT.common.themeToDark} />
-          <LanguageSwitcher t={t} language={language} setLanguage={setLanguage} />
-          <DownloadAction className="nav-download" t={t} />
+          <div className="desktop-language">
+            <LanguageSwitcher t={t} language={language} setLanguage={setLanguage} />
+          </div>
+          <button
+            className="icon-button menu-button"
+            type="button"
+            ref={menuButtonRef}
+            aria-label={menuOpen ? t.nav.closeMenu : t.nav.openMenu}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+          </button>
         </div>
-
-        <button
-          className="icon-button menu-button"
-          type="button"
-          ref={menuButtonRef}
-          aria-label={menuOpen ? t.nav.closeMenu : t.nav.openMenu}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-navigation"
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
       </nav>
     </motion.header>
   );
@@ -372,19 +408,6 @@ function ActionLink({ url, label, unavailableLabel, className = "primary-button"
       <span>{label}</span>
       <Icon size={18} aria-hidden="true" />
     </a>
-  );
-}
-
-function DownloadAction({ className, t, onClick, tabIndex }) {
-  return (
-    <ActionLink
-      url={getPrimaryDownloadUrl()}
-      label={t.nav.download}
-      unavailableLabel={t.common.comingSoon}
-      className={className}
-      onClick={onClick}
-      tabIndex={tabIndex}
-    />
   );
 }
 
